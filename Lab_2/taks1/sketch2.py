@@ -1,4 +1,5 @@
 # import the pygame module, so you can use it
+import heapq
 import pickle
 import pygame
 import time
@@ -17,9 +18,9 @@ WHITE = (255, 255, 255)
 
 # define directions
 UP = 0
-DOWN = 2
-LEFT = 1
-RIGHT = 3
+DOWN = 1
+LEFT = 3
+RIGHT = 2
 
 # define indexes variations
 v = [[-1, 0], [1, 0], [0, 1], [0, -1]]
@@ -99,12 +100,24 @@ class Drone():
         return mapImage
 
 
+def manhattan_distance(initialX, initialY, finalX, finalY):
+    return abs(initialX - finalX) + abs(initialY - finalY)
+
+def h(initialX, initialY, finalX, finalY):
+    return manhattan_distance(initialX, initialY, finalX, finalY)
+
 def searchAStar(mapM, droneD, initialX, initialY, finalX, finalY):
-    # TO DO 
+    # TO DO
     # implement the search function and put it in controller
-    # returns a list of moves as a list of pairs [x,y] 
-    
-    pass
+    # returns a list of moves as a list of pairs [x,y]
+    g = 0
+    n = mapM.n
+    m = mapM.m
+    visited = np.zeros(n, m)
+    queue = [(initialX, initialY)]
+    while len(queue):
+        x, y = heapq.heappop(queue)
+
 
 
 def searchGreedy(mapM, droneD, initialX, initialY, finalX, finalY):
