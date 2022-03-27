@@ -77,6 +77,10 @@ class Drone():
         self.x = x
         self.y = y
 
+    def set_path(self, path):
+        self.path = path
+        self.pos = 0
+
     def move(self, detectedMap):
         pressed_keys = pygame.key.get_pressed()
         if self.x > 0:
@@ -94,9 +98,14 @@ class Drone():
                 self.y = self.y + 1
 
     def mapWithDrone(self, mapImage):
+        mark = pygame.Surface((20, 20))
+        mark.fill(GREEN)
+        for i in range(0, self.pos):
+            mapImage.blit(mark, (self.path[i][1] * 20, self.path[i][0] * 20))
         drona = pygame.image.load("drona.png")
+        self.x, self.y = self.path[self.pos]
         mapImage.blit(drona, (self.y * 20, self.x * 20))
-
+        self.pos += 1
         return mapImage
 
 
@@ -106,25 +115,60 @@ def manhattan_distance(initialX, initialY, finalX, finalY):
 def h(initialX, initialY, finalX, finalY):
     return manhattan_distance(initialX, initialY, finalX, finalY)
 
-def searchAStar(mapM, droneD, initialX, initialY, finalX, finalY):
+def searchAStar(mapM, initialX, initialY, finalX, finalY):
     # TO DO
     # implement the search function and put it in controller
     # returns a list of moves as a list of pairs [x,y]
     g = 0
     n = mapM.n
     m = mapM.m
-    visited = np.zeros(n, m)
-    queue = [(initialX, initialY)]
+    visited = np.zeros((n, m))
+    initial_c = h(initialX, initialY, finalX, finalY)
+    queue = [(initial_c, initialX, initialY, 0)]
+    result = []
     while len(queue):
-        x, y = heapq.heappop(queue)
+        f, x, y, g = heapq.heappop(queue)
+        if x == finalX and y == finalY:
+            result.append((x, y))
+            return result
+        if visited[x][y] == 0:
+            visited[x][y] = 1
+            result.append((x, y))
+            for i in range(4):
+                tx = x + v[i][0]
+                ty = y + v[i][1]
+                if 0 <= tx < n and 0 <= ty < m and mapM.surface[tx][ty] == 0:
+                    if visited[tx][ty] == 0:
+                        c = g + h(tx, ty, finalX, finalY)
+                        heapq.heappush(queue, (c, tx, ty, g + 1))
 
 
-
-def searchGreedy(mapM, droneD, initialX, initialY, finalX, finalY):
-    # TO DO 
+def searchGreedy(mapM, initialX, initialY, finalX, finalY):
+    # TO DO
     # implement the search function and put it in controller
     # returns a list of moves as a list of pairs [x,y]
-    pass
+    g = 0
+    n = mapM.n
+    m = mapM.m
+    visited = np.zeros((n, m))
+    initial_c = h(initialX, initialY, finalX, finalY)
+    queue = [(initial_c, initialX, initialY)]
+    result = []
+    while len(queue):
+        f, x, y = heapq.heappop(queue)
+        if x == finalX and y == finalY:
+            result.append((x, y))
+            return result
+        if visited[x][y] == 0:
+            visited[x][y] = 1
+            result.append((x, y))
+            for i in range(4):
+                tx = x + v[i][0]
+                ty = y + v[i][1]
+                if 0 <= tx < n and 0 <= ty < m and mapM.surface[tx][ty] == 0:
+                    if visited[tx][ty] == 0:
+                        c = h(tx, ty, finalX, finalY)
+                        heapq.heappush(queue, (c, tx, ty))
 
 
 def dummysearch():
@@ -137,6 +181,7 @@ def displayWithPath(image, path):
     mark.fill(GREEN)
     for move in path:
         image.blit(mark, (move[1] * 20, move[0] * 20))
+        time.sleep(0.1)
 
     return image
 
@@ -167,10 +212,23 @@ def main():
     screen = pygame.display.set_mode((400, 400))
     screen.fill(WHITE)
 
+    start = time.time()
+    searchGreedy(m, 0, 4, 19, 19)
+    end = time.time()
+    print("Greedy: ", end - start)
+
+    start = time.time()
+    searchAStar(m, 0, 4, 19, 19)
+    end = time.time()
+    print("A*: ", end - start)
+
+
     # define a variable to control the main loop
     running = True
-
-    # main loop
+    path = searchGreedy(m, 0, 4, 19, 19)
+    d.set_path(path)
+    # # main loop
+    i = 0
     while running:
         # event handling, gets all event from the event queue
         for event in pygame.event.get():
@@ -179,17 +237,20 @@ def main():
                 # change the value to False, to exit the main loop
                 running = False
 
-            if event.type == KEYDOWN:
-                d.move(m)  # this call will be erased
+            # if event.type == KEYDOWN:
+            #     d.move(m)  # this call will be erased
 
+        time.sleep(0.5)
         screen.blit(d.mapWithDrone(m.image()), (0, 0))
         pygame.display.flip()
 
-    path = dummysearch()
-    screen.blit(displayWithPath(m.image(), path), (0, 0))
+    # path = dummysearch()
+    # path = searchAStar(m, 0, 4, 19, 19)
+    # print(path)
+    # screen.blit(displayWithPath(m.image(), path), (0, 0))
 
     pygame.display.flip()
-    time.sleep(5)
+    time.sleep(100)
     pygame.quit()
 
 

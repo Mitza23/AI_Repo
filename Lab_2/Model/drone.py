@@ -46,5 +46,4 @@ class Drone():
     def mapWithDrone(self, mapImage):
         drona = pygame.image.load("drona.png")
         mapImage.blit(drona, (self.y * 20, self.x * 20))
-
         return mapImage
