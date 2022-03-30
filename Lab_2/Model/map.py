@@ -64,5 +64,4 @@ class Map():
             for j in range(self.m):
                 if (self.surface[i][j] == 1):
                     imagine.blit(brick, (j * 20, i * 20))
-
         return imagine

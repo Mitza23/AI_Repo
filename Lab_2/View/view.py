@@ -27,7 +27,7 @@ class View:
         return image
 
     def loadEnvironment(self):
-        self.controller.map = Map()
+        # self.controller.map = Map()
         # m.randomMap()
         # m.saveMap("test2.map")
         self.controller.map.loadMap("test1.map")
@@ -44,8 +44,21 @@ class View:
 
     def a_star_search(self, sx, sy, fx, fy):
         path = self.controller.searchAStar(sx, sy, fx, fy)
-        self.screen.blit(self.displayWithPath(self.controller.map.image(), path), (0, 0))
+        self.controller.set_path(path)
+        # self.screen.blit(self.controller.map_with_move())
 
     def greedy_search(self, sx, sy, fx, fy):
+        print("GREEDY")
         path = self.controller.searchGreedy(sx, sy, fx, fy)
-        self.screen.blit(self.displayWithPath(self.controller.map.image(), path), (0, 0))
+        self.controller.set_path(path)
+        # self.screen.blit(self.controller.map_with_move())
+
+    def run(self):
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+            time.sleep(0.5)
+            self.screen.blit(self.controller.map_with_move(), (0, 0))
+            pygame.display.flip()

@@ -27,6 +27,10 @@ class Drone():
         self.x = x
         self.y = y
 
+    def set_path(self, path):
+        self.path = path
+        self.pos = 0
+
     def move(self, detectedMap):
         pressed_keys = pygame.key.get_pressed()
         if self.x > 0:
@@ -44,6 +48,12 @@ class Drone():
                 self.y = self.y + 1
 
     def mapWithDrone(self, mapImage):
+        mark = pygame.Surface((20, 20))
+        mark.fill(GREEN)
+        for i in range(0, self.pos):
+            mapImage.blit(mark, (self.path[i][1] * 20, self.path[i][0] * 20))
         drona = pygame.image.load("drona.png")
+        self.x, self.y = self.path[self.pos]
         mapImage.blit(drona, (self.y * 20, self.x * 20))
+        self.pos += 1
         return mapImage

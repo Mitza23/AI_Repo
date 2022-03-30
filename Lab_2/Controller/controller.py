@@ -2,12 +2,14 @@ import heapq
 
 import numpy as np
 
+from Model.drone import Drone
 from Model.map import Map
 
 
 class Controller:
     def __init__(self):
         self.map = Map()
+        self.drone = Drone()
 
     @staticmethod
     def manhattan_distance(initialX, initialY, finalX, finalY):
@@ -77,3 +79,9 @@ class Controller:
     def dummysearch():
         # example of some path in test1.map from [5,7] to [7,11]
         return [[5, 7], [5, 8], [5, 9], [5, 10], [5, 11], [6, 11], [7, 11]]
+
+    def set_path(self, path):
+        self.drone.set_path(path)
+
+    def map_with_move(self):
+        return self.drone.mapWithDrone(self.map.image())
