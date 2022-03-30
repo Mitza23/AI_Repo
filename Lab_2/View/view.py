@@ -62,3 +62,57 @@ class View:
             time.sleep(0.5)
             self.screen.blit(self.controller.map_with_move(), (0, 0))
             pygame.display.flip()
+
+    def run_all(self):
+        # initialize the pygame module
+        pygame.init()
+        # load and set the logo
+        logo = pygame.image.load("../taks1/logo32x32.png")
+        pygame.display.set_icon(logo)
+        pygame.display.set_caption("Path in simple environment")
+
+        m, d = self.controller.load_Actors()
+
+        self.controller.set_map(m)
+        self.controller.set_drone(d)
+
+        # create a surface on screen that has the size of 400 x 480
+        screen = pygame.display.set_mode((400, 400))
+        screen.fill(WHITE)
+
+        start = time.time()
+        self.controller.searchGreedy(0, 4, 19, 19)
+        end = time.time()
+        print("Greedy: ", end - start)
+
+        start = time.time()
+        self.controller.searchAStar(0, 4, 19, 19)
+        end = time.time()
+        print("A*: ", end - start)
+
+        # define a variable to control the main loop
+        running = True
+        path = self.controller.searchGreedy(0, 4, 19, 19)
+        # path = searchAStar(m, 0, 4, 19, 19)
+        d.set_path(path)
+        # # main loop
+        i = 0
+        while running:
+            # event handling, gets all event from the event queue
+            for event in pygame.event.get():
+                # only do something if the event is of type QUIT
+                if event.type == pygame.QUIT:
+                    # change the value to False, to exit the main loop
+                    running = False
+            time.sleep(0.5)
+            screen.blit(d.mapWithDrone(m.image()), (0, 0))
+            pygame.display.flip()
+
+        pygame.display.flip()
+        time.sleep(100)
+        pygame.quit()
+
+
+if __name__ == "__main__":
+    v = View()
+    v.run_all()

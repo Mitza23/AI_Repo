@@ -52,7 +52,7 @@ class Drone():
         mark.fill(GREEN)
         for i in range(0, self.pos):
             mapImage.blit(mark, (self.path[i][1] * 20, self.path[i][0] * 20))
-        drona = pygame.image.load("drona.png")
+        drona = pygame.image.load("../taks1/drona.png")
         self.x, self.y = self.path[self.pos]
         mapImage.blit(drona, (self.y * 20, self.x * 20))
         self.pos += 1
