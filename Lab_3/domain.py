@@ -7,6 +7,7 @@ import numpy as np
 
 # the glass gene can be replaced with int or float, or other types
 # depending on your problem's representation
+import utils
 
 
 class Map():
@@ -33,7 +34,9 @@ class Map():
 class gene:
     def __init__(self):
         self.value = randint(0, 3)
-        pass
+
+    def mutate(self):
+        self.value = randint(0, 3)
 
 
 class Individual:
@@ -54,18 +57,30 @@ class Individual:
         viz[x][y] = 1
         r = 1
         for g in self.__x:
-            x += g.value
-        pass
+            x += utils.v[g.value][0]
+            y += utils.v[g.value][1]
+            if self._map.surface[x][y] == 1:
+                return 0
+            if viz[x][y] == 0:
+                r += 1
+            viz[x][y] = 1
+        return r
 
     def mutate(self, mutateProbability=0.04):
         if random() < mutateProbability:
-            pass
+            pos = randint(0, self.__size)
+            self.__x[pos].mutate()
             # perform a mutation with respect to the representation
 
     def crossover(self, otherParent, crossoverProbability=0.8):
         offspring1, offspring2 = Individual(self.__size), Individual(self.__size)
         if random() < crossoverProbability:
-            pass
+            for i in range(self.__size // 2):
+                offspring1.__x[i] = self.__x[i]
+                offspring2.__x[i] = otherParent.__x[i]
+            for i in range(self.__size // 2 + 1, self.__size - 1):
+                offspring1.__x[i] = otherParent.__x[i]
+                offspring2.__x[i] = self.__x[i]
             # perform the crossover between the self and the otherParent 
 
         return offspring1, offspring2
@@ -78,10 +93,19 @@ class Population():
 
     def evaluate(self):
         # evaluates the population
+        r = 0
         for x in self.__v:
-            x.fitness()
+            r += x.fitness()
+        return r
 
     def selection(self, k=0):
         # perform a selection of k individuals from the population
         # and returns that selection
-        pass
+        selected_indexes = []
+        selected_individuals = []
+        for i in range(k):
+            pos = randint(0, k - 1)
+            while pos in selected_indexes:
+                pos = randint(0, k - 1)
+            selected_individuals.append(self.__v[pos])
+        return selected_individuals
