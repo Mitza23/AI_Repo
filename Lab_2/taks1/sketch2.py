@@ -225,7 +225,14 @@ def main():
 
     # define a variable to control the main loop
     running = True
+    # choice = input("A*: 0   Greedy: 1\n")
+    # if choice:
+    #     path = searchGreedy(m, 0, 4, 19, 19)
+    # else:
+    #     path = searchAStar(m, 0, 4, 19, 19)
+
     path = searchGreedy(m, 0, 4, 19, 19)
+    path = searchAStar(m, 0, 4, 19, 19)
     d.set_path(path)
     # # main loop
     i = 0

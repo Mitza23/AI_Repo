@@ -1,4 +1,5 @@
 import heapq
+from random import randint
 
 import numpy as np
 
@@ -9,7 +10,7 @@ from Model.map import Map
 class Controller:
     def __init__(self):
         self.map = Map()
-        self.drone = Drone()
+        self.drone = Drone(0, 0)
 
     @staticmethod
     def manhattan_distance(initialX, initialY, finalX, finalY):
@@ -18,6 +19,12 @@ class Controller:
     @staticmethod
     def h(initialX, initialY, finalX, finalY):
         return Controller.manhattan_distance(initialX, initialY, finalX, finalY)
+
+    def set_map(self, m):
+        self.map = m
+
+    def set_drone(self, d):
+        self.drone = d
 
     def searchAStar(self, initialX, initialY, finalX, finalY):
         # TO DO
@@ -85,3 +92,18 @@ class Controller:
 
     def map_with_move(self):
         return self.drone.mapWithDrone(self.map.image())
+
+    def load_Actors(self):
+        # we create the map
+        m = Map()
+        # m.randomMap()
+        # m.saveMap("test2.map")
+        m.loadMap("../taks1/test1.map")
+        # we position the drone somewhere in the area
+        x = randint(0, 19)
+        y = randint(0, 19)
+
+        # create drona
+        d = Drone(x, y)
+
+        return m, d
