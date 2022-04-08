@@ -8,9 +8,10 @@ class repository():
         self.__populations = []
         self.cmap = Map()
 
-    def createPopulation(self, args):
-        # args = [populationSize, individualSize] -- you can add more args    
-        return Population(args[0], args[1])
+    def createPopulation(self, population_size=100, individual_size=10, map=None, x=10, y=10):
+        self.__populations.append(Population(population_size, individual_size, map, x, y))
 
+    def get_populations(self):
+        return self.__populations
     # TO DO : add the other components for the repository: 
     #    load and save from file, etc
