@@ -3,9 +3,10 @@
 from random import *
 
 import numpy as np
-
 # the glass gene can be replaced with int or float, or other types
 # depending on your problem's representation
+import numpy.random
+
 import utils
 
 
@@ -45,13 +46,23 @@ class gene:
 
 
 class Individual:
-    def __init__(self, size=0, map=Map(), x=0, y=0):
+    def __init__(self, size=0, map=None, x=0, y=0):
+        if map is None:
+            map = Map()
         self.__size = size
         self.__x = [gene() for i in range(self.__size)]
         self.__f = None
         self._sx = x
         self._sy = y
         self._map = map
+
+    def get_fitness(self):
+        if self.__f is None:
+            self.fitness()
+        return self.__f
+
+    def get_genes(self):
+        return self.__x
 
     def fitness(self):
         # compute the fitness for the individual
@@ -67,18 +78,20 @@ class Individual:
             y += utils.v[g.value][1]
             if 0 <= x < self._map.n and 0 <= y < self._map.m:
                 if self._map.surface[x][y] == 1:
-                    return 0
+                    self.__f = r
+                    return r
                 if viz[x][y] == 0:
                     r += 1
                 viz[x][y] = 1
             else:
-                return 0
+                self.__f = r
+                return r
         self.__f = r
         return r
 
     def mutate(self, mutateProbability=0.04):
         if random() < mutateProbability:
-            pos = randint(0, self.__size)
+            pos = randint(0, self.__size - 1)
             self.__x[pos].mutate()
             # perform a mutation with respect to the representation
 
@@ -102,48 +115,73 @@ class Individual:
         return result
 
 
-class Population():
+class Population:
     def __init__(self, populationSize=0, individualSize=0, map=None, x=10, y=10):
         if map is None:
             map = Map()
+        self.__map = map
+        self.__x = x
+        self.__y = y
         self.__populationSize = populationSize
+        self.__individual_size = individualSize
         self.__v = [Individual(individualSize, map, x, y) for i in range(populationSize)]
+        for individual in self.__v:
+            individual.fitness()
 
-    def get_list(self):
+    def get_list(self) -> list[Individual]:
         return self.__v
+
+    def set_list(self, new_list):
+        self.__v = new_list
 
     def evaluate(self):
         # evaluates the population
         r = 0
         for x in self.__v:
-            r += x.fitness()
+            if x.get_fitness() is None:
+                x.fitness()
+            r += x.get_fitness()
         return r
 
-    def selection(self, k=0):
+    def selection(self, k=0) -> list[Individual]:
         # perform a selection of k individuals from the population
         # and returns that selection
-        self.__v.sort(key=lambda a: a.fitness(), reverse=False)
-        print(self.__v)
-        # selected_indexes = []
-        selected_individuals = []
-        # for i in range(k):
-        #     pos = randint(0, k - 1)
-        #     while pos in selected_indexes:
-        #         pos = randint(0, k - 1)
-        #     selected_individuals.append(self.__v[pos])
-        i = len(self.__v) - 1
-        while i >= 0 and k >= 0:
-            selected_individuals.append(self.__v[i])
-            i -= 1
-            k -= 1
+        # self.__v.sort(key=lambda a: a.fitness(), reverse=False)
+        weights = []
+        total_fintnss = 0
+        for individual in self.__v:
+            total_fintnss += individual.get_fitness()
+            weights.append(individual.get_fitness())
+        weights[:] = [w / total_fintnss for w in weights]
+        selected_individuals = list(numpy.random.choice(self.get_list(), k, p=weights))
         return selected_individuals
 
     def next_generation(self):
-        # TODO implement logic for selection, crossover and mutation
-        pass
+        selected_parents = self.selection(self.__populationSize // 2)
+        new_generation = selected_parents[:]
+        for i in range(0, len(selected_parents) - 2, 2):
+            off1, off2 = selected_parents[i].crossover(selected_parents[i + 1])
+            new_generation.append(off1)
+            new_generation.append(off2)
+            # new_generation.extend([selected_parents[i].crossover(selected_parents[i + 1])])
+
+        for individual in new_generation:
+            individual.mutate()
+
+        self.set_list(new_generation)
+        return new_generation
+
+    def __str__(self) -> str:
+        result_string = ""
+        for individual in self.get_list():
+            result_string += str(individual) + '\n'
+        return result_string
 
 
 if __name__ == '__main__':
-    population = Population(10, 4)
-    for e in population.selection(5):
-        print(e)
+    population = Population(100, 10)
+    print(population.evaluate())
+    for i in range(100):
+        population.next_generation()
+    population.next_generation()
+    print(population.evaluate())
