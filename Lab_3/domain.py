@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-
+import random
 from random import *
+from random import shuffle
 
 import numpy as np
 # the glass gene can be replaced with int or float, or other types
@@ -10,18 +11,20 @@ import numpy.random
 import utils
 
 
-class Map():
+class Map:
     def __init__(self, n=20, m=20):
         self.n = n
         self.m = m
         self.surface = np.zeros((self.n, self.m))
 
-    def randomMap(self, fill=0.2):
+    def randomMap(self, fill=0.2, x=10, y=10):
         for i in range(self.n):
             for j in range(self.m):
                 if random() <= fill:
                     self.surface[i][j] = 1
-        self.surface[10][10] = 0
+                else:
+                    self.surface[i][j] = 0
+        self.surface[x][y] = 0
 
     def __str__(self):
         string = ""
@@ -50,7 +53,7 @@ class Individual:
         if map is None:
             map = Map()
         self.__size = size
-        self.__x = [gene() for i in range(self.__size)]
+        self.__x = [gene() for g in range(self.__size)]
         self.__f = None
         self._sx = x
         self._sy = y
@@ -96,12 +99,14 @@ class Individual:
             # perform a mutation with respect to the representation
 
     def crossover(self, otherParent, crossoverProbability=0.8):
-        offspring1, offspring2 = Individual(self.__size), Individual(self.__size)
+        offspring1, offspring2 = Individual(self.__size, map=self._map, x=self._sx, y=self._sy), \
+                                 Individual(self.__size, map=self._map, x=otherParent._sx, y=otherParent._sy)
         if random() < crossoverProbability:
-            for i in range(self.__size // 2):
+            cutting_point = randint(0, self.__size - 1)
+            for i in range(cutting_point):
                 offspring1.__x[i] = self.__x[i]
                 offspring2.__x[i] = otherParent.__x[i]
-            for i in range(self.__size // 2 + 1, self.__size - 1):
+            for i in range(cutting_point, self.__size):
                 offspring1.__x[i] = otherParent.__x[i]
                 offspring2.__x[i] = self.__x[i]
             # perform the crossover between the self and the otherParent
@@ -119,6 +124,7 @@ class Population:
     def __init__(self, populationSize=0, individualSize=0, map=None, x=10, y=10):
         if map is None:
             map = Map()
+            map.randomMap(x, y)
         self.__map = map
         self.__x = x
         self.__y = y
@@ -127,6 +133,9 @@ class Population:
         self.__v = [Individual(individualSize, map, x, y) for i in range(populationSize)]
         for individual in self.__v:
             individual.fitness()
+
+    def get_map(self):
+        return self.__map
 
     def get_list(self) -> list[Individual]:
         return self.__v
@@ -138,8 +147,6 @@ class Population:
         # evaluates the population
         r = 0
         for x in self.__v:
-            if x.get_fitness() is None:
-                x.fitness()
             r += x.get_fitness()
         return r
 
@@ -150,26 +157,54 @@ class Population:
         weights = []
         total_fintnss = 0
         for individual in self.__v:
-            total_fintnss += individual.get_fitness()
-            weights.append(individual.get_fitness())
+            total_fintnss += individual.get_fitness() * 10000
+            weights.append(individual.get_fitness() * 10000)
         weights[:] = [w / total_fintnss for w in weights]
-        selected_individuals = list(numpy.random.choice(self.get_list(), k, p=weights))
+        # print(weights)
+        # s = 0
+        # for w in weights:
+        #     s += w
+        # print("W: " + str(s))
+        selected_individuals = list(numpy.random.choice(self.get_list(), k // 2, p=weights))
+
+        population.get_list().sort(key=lambda i: i.get_fitness(), reverse=True)
+        selected_individuals.extend(population.get_list()[:k // 2])
+
+        shuffle(selected_individuals)
+
         return selected_individuals
 
-    def next_generation(self):
+    def next_generation_old(self, crossover_probability=0.8, mutate_probability=0.04):
         selected_parents = self.selection(self.__populationSize // 2)
         new_generation = selected_parents[:]
+
         for i in range(0, len(selected_parents) - 2, 2):
-            off1, off2 = selected_parents[i].crossover(selected_parents[i + 1])
+            off1, off2 = selected_parents[i].crossover(selected_parents[i + 1],
+                                                       crossoverProbability=crossover_probability)
             new_generation.append(off1)
             new_generation.append(off2)
             # new_generation.extend([selected_parents[i].crossover(selected_parents[i + 1])])
 
         for individual in new_generation:
-            individual.mutate()
+            individual.mutate(mutateProbability=mutate_probability)
 
         self.set_list(new_generation)
-        return new_generation
+        return self.evaluate()
+
+    def next_generation(self, crossover_probability=0.8, mutate_probability=0.04):
+        new_generation = []
+        for it1 in range(self.__populationSize - 1):
+            for it2 in range(it1 + 1, self.__populationSize):
+                off1, off2 = self.__v[it1].crossover(self.__v[it2], crossover_probability)
+                new_generation.append(off1)
+                new_generation.append(off2)
+        for individual in new_generation:
+            individual.mutate(mutate_probability)
+            individual.fitness()
+
+        new_generation.sort(key=lambda individual: individual.get_fitness(), reverse=True)
+        self.set_list(new_generation[:self.__populationSize])
+        return self.evaluate()
 
     def __str__(self) -> str:
         result_string = ""
@@ -180,8 +215,24 @@ class Population:
 
 if __name__ == '__main__':
     population = Population(100, 10)
+    surface = population.get_map().surface
+    print(surface)
+    print("\n\n")
+    #  Test Samples
+    # population.evaluate()
+    # for i in population.selection(10):
+    #     print(i)
+    #
+    # print("\n\n")
+    #
+    # population.get_list().sort(key=lambda i: i.get_fitness(), reverse=True)
+    # for i in population.get_list()[:10]:
+    #     print(i)
+
     print(population.evaluate())
-    for i in range(100):
-        population.next_generation()
+    for i in population.get_list():
+        print(i.get_fitness(), end=" ")
+    # for i in range(100):
+    #     population.next_generation()
     population.next_generation()
     print(population.evaluate())
