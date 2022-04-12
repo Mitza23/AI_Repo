@@ -2,6 +2,7 @@
 import random
 
 import matplotlib.pyplot as plt
+import numpy
 
 from controller import controller
 
@@ -17,7 +18,7 @@ from controller import controller
 #         d visualise map
 #   2. EA options:
 #         a. parameters setup
-#         b. run the solver
+#         b. run_once the solver
 #         c. visualise the statistics
 #         d. view the drone moving on a path
 #              function gui.movingDrone(currentMap, path, speed, markseen)
@@ -28,9 +29,10 @@ class gui:
         self.controller = controller()
         self.population_size = 100
         self.individual_size = 10
-        self.iterations = 100
+        self.iterations = 200
         self.mutation_probability = 0.04
         self.crossover_probability = 0.8
+        self.civilizations = 30
 
     def print_menu(self):
         print("1. Map options")
@@ -48,19 +50,32 @@ class gui:
         print("2. Individual size")
         print("2. Epochs")
 
-    def run(self):
+    def run_once(self):
         evaluations = self.controller.run(iterations=self.iterations, crossover_probability=self.crossover_probability,
                                           mutate_probability=self.mutation_probability)
-        plt.plot(evaluations, color='magenta', marker='o', mfc='pink')  # plot the data
-        plt.xticks(range(0, len(evaluations) + 1, 1))  # set the tick frequency on x-axis
+        # print(evaluations[0], evaluations[-1])
+        plt.plot(evaluations, color='magenta', marker='.', mfc='pink')  # plot the data
+        # plt.xticks(range(0, len(evaluations) + 1, 1))  # set the tick frequency on x-axis
 
-        plt.ylabel('data')  # set the label for y axis
-        plt.xlabel('index')  # set the label for x-axis
-        plt.title("Plotting a list")  # set the title of the graph
+        plt.ylabel('total fitness')  # set the label for y axis
+        plt.xlabel('iteration')  # set the label for x-axis
+        plt.title("Evolution")  # set the title of the graph
         plt.show()  # display the graph
+        # return numpy.average(evaluations)
+        return evaluations
+
+    def run_more(self):
+        averages = []
+        for i in range(self.civilizations):
+            seed = random.randint(0, 10000)
+            random.seed(seed)
+            ui = gui()
+            averages.append(ui.run_once())
+        print("Average: " + numpy.average(averages))
+        print("Deviation: " + numpy.std(averages))
 
 
 if __name__ == '__main__':
-    random.seed(10)
     ui = gui()
-    ui.run()
+    ui.run_more()
+    exit(0)

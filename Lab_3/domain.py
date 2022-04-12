@@ -7,6 +7,7 @@ import numpy as np
 # the glass gene can be replaced with int or float, or other types
 # depending on your problem's representation
 import numpy.random
+from matplotlib import pyplot as plt
 
 import utils
 
@@ -89,6 +90,8 @@ class Individual:
             else:
                 self.__f = r
                 return r
+        if x == self._sx and y == self._sy:
+            r += 500
         self.__f = r
         return r
 
@@ -193,16 +196,19 @@ class Population:
 
     def next_generation(self, crossover_probability=0.8, mutate_probability=0.04):
         new_generation = []
-        for it1 in range(self.__populationSize - 1):
-            for it2 in range(it1 + 1, self.__populationSize):
-                off1, off2 = self.__v[it1].crossover(self.__v[it2], crossover_probability)
-                new_generation.append(off1)
-                new_generation.append(off2)
+        for it1 in range(self.__populationSize):
+            for it2 in range(self.__populationSize):
+                if it1 != it2:
+                    off1, off2 = self.__v[it1].crossover(self.__v[it2], crossover_probability)
+                    new_generation.append(off1)
+                    new_generation.append(off2)
         for individual in new_generation:
             individual.mutate(mutate_probability)
             individual.fitness()
 
         new_generation.sort(key=lambda individual: individual.get_fitness(), reverse=True)
+        # for individual in new_generation:
+        #     print(individual.get_fitness(), end=" ")
         self.set_list(new_generation[:self.__populationSize])
         return self.evaluate()
 
@@ -225,12 +231,23 @@ if __name__ == '__main__':
     # population.get_list().sort(key=lambda i: i.get_fitness(), reverse=True)
     # for i in population.get_list()[:10]:
     #     print(i)
-
-    print(population.evaluate())
+    evaluations = []
+    # print(population.evaluate())
+    evaluations.append(population.evaluate())
     for i in range(100):
         population.next_generation()
+        evaluations.append(population.evaluate())
     population.next_generation()
-    print(population.evaluate())
+    # print(population.evaluate())
+    evaluations.append(population.evaluate())
+
+    # print(evaluations)
+
+    plt.plot(evaluations, color='magenta', marker='.', mfc='pink')
+    plt.ylabel('total fitness')
+    plt.xlabel('iteration')
+    plt.title("Evolution")
+    plt.show()
 
 # 459 -> 1100 new
 # 298 -> 1039 new

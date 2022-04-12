@@ -8,7 +8,7 @@ class controller():
         pass
 
     def iteration(self, crossover_probability=0.8, mutate_probability=0.04):
-        # args - list of parameters needed to run one iteration
+        # args - list of parameters needed to run_once one iteration
         # a iteration:
         # selection of the parents
         # create offsprings by crossover of the parents
@@ -19,7 +19,7 @@ class controller():
                                           mutate_probability=mutate_probability)
 
     def run(self, iterations=100, crossover_probability=0.8, mutate_probability=0.04):
-        # args - list of parameters needed in order to run the algorithm
+        # args - list of parameters needed in order to run_once the algorithm
 
         # until stop condition
         #    perform an iteration
@@ -32,9 +32,9 @@ class controller():
         return evaluations
 
     def solver(self, args):
-        # args - list of parameters needed in order to run the solver
+        # args - list of parameters needed in order to run_once the solver
 
         # create the population,
-        # run the algorithm
+        # run_once the algorithm
         # return the results and the statistics
         pass
