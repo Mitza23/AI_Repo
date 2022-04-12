@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
+import random
+
+import matplotlib.pyplot as plt
 
 from controller import controller
+
+
 # imports
 
 
@@ -23,7 +28,7 @@ class gui:
         self.controller = controller()
         self.population_size = 100
         self.individual_size = 10
-        self.epochs = 1000
+        self.iterations = 100
         self.mutation_probability = 0.04
         self.crossover_probability = 0.8
 
@@ -42,3 +47,20 @@ class gui:
         print("1. Population size")
         print("2. Individual size")
         print("2. Epochs")
+
+    def run(self):
+        evaluations = self.controller.run(iterations=self.iterations, crossover_probability=self.crossover_probability,
+                                          mutate_probability=self.mutation_probability)
+        plt.plot(evaluations, color='magenta', marker='o', mfc='pink')  # plot the data
+        plt.xticks(range(0, len(evaluations) + 1, 1))  # set the tick frequency on x-axis
+
+        plt.ylabel('data')  # set the label for y axis
+        plt.xlabel('index')  # set the label for x-axis
+        plt.title("Plotting a list")  # set the title of the graph
+        plt.show()  # display the graph
+
+
+if __name__ == '__main__':
+    random.seed(10)
+    ui = gui()
+    ui.run()

@@ -124,7 +124,7 @@ class Population:
     def __init__(self, populationSize=0, individualSize=0, map=None, x=10, y=10):
         if map is None:
             map = Map()
-            map.randomMap(x, y)
+            map.randomMap(x=x, y=y)
         self.__map = map
         self.__x = x
         self.__y = y
@@ -215,9 +215,6 @@ class Population:
 
 if __name__ == '__main__':
     population = Population(100, 10)
-    surface = population.get_map().surface
-    print(surface)
-    print("\n\n")
     #  Test Samples
     # population.evaluate()
     # for i in population.selection(10):
@@ -230,9 +227,12 @@ if __name__ == '__main__':
     #     print(i)
 
     print(population.evaluate())
-    for i in population.get_list():
-        print(i.get_fitness(), end=" ")
-    # for i in range(100):
-    #     population.next_generation()
+    for i in range(100):
+        population.next_generation()
     population.next_generation()
     print(population.evaluate())
+
+# 459 -> 1100 new
+# 298 -> 1039 new
+# 521 -> 634 old
+# 211 -> 661 old

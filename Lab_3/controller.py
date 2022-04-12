@@ -18,7 +18,7 @@ class controller():
         return population.next_generation(crossover_probability=crossover_probability,
                                           mutate_probability=mutate_probability)
 
-    def run(self, iterations=1000, crossover_probability=0.8, mutate_probability=0.04):
+    def run(self, iterations=100, crossover_probability=0.8, mutate_probability=0.04):
         # args - list of parameters needed in order to run the algorithm
 
         # until stop condition
