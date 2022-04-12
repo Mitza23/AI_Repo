@@ -26,13 +26,16 @@ from controller import controller
 
 class gui:
     def __init__(self):
-        self.controller = controller()
         self.population_size = 100
-        self.individual_size = 10
-        self.iterations = 200
+        self.individual_size = 30
+        self.iterations = 100
         self.mutation_probability = 0.04
         self.crossover_probability = 0.8
         self.civilizations = 30
+        self.controller = controller(population_size=self.population_size, individual_size=self.individual_size,
+                                     crossover_probability=self.crossover_probability,
+                                     mutate_probability=self.mutation_probability,
+                                     iterations=self.iterations)
 
     def print_menu(self):
         print("1. Map options")

@@ -2,9 +2,13 @@ from repository import repository
 
 
 class controller():
-    def __init__(self, population_size=100, individual_size=10, map=None, x=10, y=10):
+    def __init__(self, population_size=100, individual_size=10, map=None, x=10, y=10, crossover_probability=0.8,
+                 mutate_probability=0.04, iterations=200):
         self.repo = repository()
         self.repo.createPopulation(population_size, individual_size, map, x, y)
+        self.crossover_probability = crossover_probability
+        self.mutate_probability = mutate_probability
+        self.iterations = iterations
         pass
 
     def iteration(self, crossover_probability=0.8, mutate_probability=0.04):
@@ -15,10 +19,10 @@ class controller():
         # apply some mutations
         # selection of the survivors
         population = self.repo.get_first_population()
-        return population.next_generation(crossover_probability=crossover_probability,
-                                          mutate_probability=mutate_probability)
+        return population.next_generation(crossover_probability=self.crossover_probability,
+                                          mutate_probability=self.mutate_probability)
 
-    def run(self, iterations=100, crossover_probability=0.8, mutate_probability=0.04):
+    def run(self):
         # args - list of parameters needed in order to run_once the algorithm
 
         # until stop condition
@@ -27,8 +31,8 @@ class controller():
 
         # return the results and the info for statistics
         evaluations = []
-        for i in range(iterations):
-            evaluations.append(self.iteration(crossover_probability, mutate_probability))
+        for i in range(self.iterations):
+            evaluations.append(self.iteration(self.crossover_probability, self.mutate_probability))
         return evaluations
 
     def solver(self, args):
