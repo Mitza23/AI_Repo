@@ -54,8 +54,7 @@ class gui:
         print("2. Epochs")
 
     def run_once(self):
-        evaluations = self.controller.run(iterations=self.iterations, crossover_probability=self.crossover_probability,
-                                          mutate_probability=self.mutation_probability)
+        evaluations = self.controller.run()
         # print(evaluations[0], evaluations[-1])
         plt.plot(evaluations, color='magenta', marker='.', mfc='pink')  # plot the data
         # plt.xticks(range(0, len(evaluations) + 1, 1))  # set the tick frequency on x-axis
@@ -72,6 +71,7 @@ class gui:
         for i in range(self.civilizations):
             seed = random.randint(0, 10000)
             random.seed(seed)
+            print("Seed: " + str(seed))
             ui = gui()
             averages.append(ui.run_once())
         print("Average: " + numpy.average(averages))

@@ -195,22 +195,25 @@ class Population:
         return self.evaluate()
 
     def next_generation(self, crossover_probability=0.8, mutate_probability=0.04):
-        new_generation = []
+        new_generation = self.get_list()[:]
+
         for it1 in range(self.__populationSize):
             for it2 in range(self.__populationSize):
                 if it1 != it2:
                     off1, off2 = self.__v[it1].crossover(self.__v[it2], crossover_probability)
                     new_generation.append(off1)
                     new_generation.append(off2)
+
         for individual in new_generation:
             individual.mutate(mutate_probability)
             individual.fitness()
 
         new_generation.sort(key=lambda individual: individual.get_fitness(), reverse=True)
-        # for individual in new_generation:
-        #     print(individual.get_fitness(), end=" ")
+
         self.set_list(new_generation[:self.__populationSize])
-        return self.evaluate()
+
+        print(self.get_list()[0].get_fitness())
+        return self.get_list()[0].get_fitness()
 
     def __str__(self) -> str:
         result_string = ""
