@@ -1,5 +1,6 @@
-from AntSystem import *
 from queue import PriorityQueue
+
+from AntSystem import *
 
 
 class Controller:
@@ -33,12 +34,15 @@ class Controller:
         reached[self.map.x][self.map.y] = [0 for i in range(6)]
         return reached
 
+    # executes one passing of the ant colony through the environment
     def epoch(self, noAnts, trace, alpha, beta, q0, rho):
         antSet = [Ant(self.map) for i in range(noAnts)]
         for i in range(self.map.get_nr_sensors()):
             for x in antSet:
                 x.addMove(q0, trace, alpha, beta)
         dTrace = [antSet[i].fitness() for i in range(len(antSet))]
+
+        # evaporation
         sensors = self.map.get_sensors()
         for i in sensors:
             for j in sensors:
@@ -54,6 +58,7 @@ class Controller:
         f = max(f)
         return antSet[f[1]].path, antSet[f[1]].fitness()
 
+    # getting shortest paths between sensors
     def get_paths(self):
         stops = self.map.get_sensors()
         stops.append((self.map.x, self.map.y))
@@ -63,10 +68,11 @@ class Controller:
                     self.sensors_paths[(s1, s2)] = self.searchAStar(s1[0], s1[1], s2[0], s2[1])
         self.map.set_sensors_paths(self.sensors_paths)
 
+    # heuristic manhattan distance
     def h(self, cell1, cell2):
         return abs(cell1[0] - cell2[0]) + abs(cell1[1] - cell2[1])
 
-    def searchAStar(self,initialX, initialY, finalX, finalY):
+    def searchAStar(self, initialX, initialY, finalX, finalY):
         path = {}
         queue = PriorityQueue()
         start = (initialX, initialY)
